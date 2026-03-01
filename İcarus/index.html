@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karanlık Diyar - RPG</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=MedievalSharp&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Cinzel', serif;
+            overflow: hidden;
+            user-select: none;
+            background: #1a1a1a;
+        }
+        
+        .game-img {
+            image-rendering: pixelated;
+            object-fit: contain;
+        }
+        
+        .char-img { width: 128px; height: 128px; }
+        .enemy-img { width: 180px; height: 180px; }
+        .mini-img { width: 48px; height: 48px; }
+        .btn-icon { width: 32px; height: 32px; margin-bottom: 5px; }
+        .item-img { width: 40px; height: 40px; }
+        
+        /* ==================== EKRAN 1 ==================== */
+        #screen1 {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at 50% 50%, #3a3a3a 0%, #1a1a1a 100%);
+        }
+        
+        .creation-panel {
+            background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+            border: 8px solid #3d2914;
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            gap: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 300px;
+        }
+        
+        .preview-section {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .character-preview {
+            width: 200px;
+            height: 200px;
+            background: rgba(0,0,0,0.5);
+            border: 4px solid #d4af37;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* BİLGİ KUTUSU */
+        .info-box {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            color: #f4e4c1;
+            font-size: 13px;
+            line-height: 1.6;
+            width: 100%;
+            min-height: 120px;
+        }
+        
+        .info-title {
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            border-bottom: 1px solid #d4af37;
+            padding-bottom: 5px;
+        }
+        
+        .info-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        .info-special {
+            color: #ffd700;
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        input, select {
+            padding: 12px;
+            border: 3px solid #3d2914;
+            border-radius: 8px;
+            background: #f4e4c1;
+            color: #3d2914;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .stat-bars {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stat-label {
+            color: #f4e4c1;
+            width: 60px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .stat-bar-bg {
+            flex: 1;
+            height: 25px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #2d5016;
+        }
+        
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 12px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .create-btn {
+            padding: 15px;
+            background: linear-gradient(180deg, #d4af37 0%, #b8941f 100%);
+            border: 3px solid #3d2914;
+            border-radius: 10px;
+            color: #3d2914;
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .create-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* ==================== EKRAN 2 ==================== */
+        #screen2 {
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            flex-direction: column;
+            background: #2a2a2a;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 3px solid #d4af37;
+        }
+        
+        .player-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .mini-avatar {
+            width: 48px;
+            height: 48px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .xp-bar {
+            width: 200px;
+            height: 20px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #4a3728;
+        }
+        
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(180deg, #a855f7 0%, #7c3aed 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .main-arena {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: radial-gradient(circle at 50% 50%, #4a4a4a 0%, #2a2a2a 100%);
+        }
+        
+        .enemy-box {
+            text-align: center;
+        }
+        
+        .enemy-visual {
+            width: 256px;
+            height: 256px;
+            background: rgba(0,0,0,0.6);
+            border: 4px solid #8b0000;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .enemy-name {
+            font-size: 28px;
+            color: #ff6b6b;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .success-rate-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #d4af37;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .success-rate-box .label {
+            color: #d4af37;
+            font-size: 12px;
+        }
+        
+        .success-rate-box .value {
+            color: #4ade80;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .battle-log {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 120px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #3d2914;
+            border-radius: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            color: #f4e4c1;
+            font-family: 'MedievalSharp', cursive;
+        }
+        
+        .control-panel {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0,0,0,0.8);
+            border-top: 3px solid #3d2914;
+        }
+        
+        .player-bars {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .player-bar {
+            height: 30px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+        }
+        
+        .player-bar-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            transition: width 0.3s ease;
+        }
+        
+        .hp-fill { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); }
+        .mp-fill { background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); }
+        
+        .action-area {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .action-btn {
+            padding: 15px 25px;
+            border: 3px solid #3d2914;
+            border-radius: 15px;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.2s;
+            min-width: 120px;
+            position: relative;
+        }
+        
+        .btn-attack {
+            background: linear-gradient(180deg, #d4af37 0%, #b8941f 100%);
+            color: #3d2914;
+        }
+        
+        .btn-critical {
+            background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+            color: #fff;
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+        
+        .action-btn.stunned::after {
+            content: 'SERSEMLETME!';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background: #8b0000;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+            border-radius: 5px;
+        }
+        
+        .action-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .side-actions {
+            width: 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .side-btn {
+            flex: 1;
+            background: linear-gradient(180deg, #4a3728 0%, #3d2914 100%);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            color: #f4e4c1;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .side-btn:hover {
+            background: linear-gradient(180deg, #5c4033 0%, #4a3728 100%);
+        }
+        
+        /* ==================== MODALLER ==================== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .inventory-modal {
+            width: 700px;
+            height: 550px;
+            background: linear-gradient(135deg, #5c4033 0%, #4a3728 50%, #3d2914 100%);
+            border: 8px solid #2d1f16;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            background: #2d1f16;
+            padding: 15px;
+            text-align: center;
+            color: #d4af37;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 3px solid #d4af37;
+        }
+        
+        .inventory-grid {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            overflow-y: auto;
+        }
+        
+        .inventory-slot {
+            aspect-ratio: 1;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid #5c4033;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px;
+            position: relative;
+        }
+        
+        .inventory-slot:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .inventory-slot.has-item {
+            border-color: #4ade80;
+        }
+        
+        .inventory-slot.equipped {
+            border-color: #a855f7;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        
+        .item-name {
+            font-size: 9px;
+            color: #f4e4c1;
+            text-align: center;
+            margin-top: 5px;
+            line-height: 1.2;
+        }
+        
+        .item-type {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+        }
+        
+        .close-btn {
+            margin: 15px;
+            padding: 10px 30px;
+            background: #8b0000;
+            border: 2px solid #5c0000;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+            align-self: center;
+        }
+        
+        .map-modal {
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 50%, #8b6914 100%);
+            border: 10px solid #3d2914;
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        .map-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 28px;
+            color: #3d2914;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 rgba(255,255,255,0.3);
+        }
+        
+        .map-container {
+            position: absolute;
+            top: 80px;
+            left: 50px;
+            right: 50px;
+            bottom: 80px;
+        }
+        
+        .level-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+            border: 3px solid #3d2914;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #f4e4c1;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .level-node:hover:not(.locked):not(.completed) {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+        }
+        
+        .level-node.completed {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-color: #15803d;
+        }
+        
+        .level-node.current {
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+            border-color: #f4e4c1;
+            animation: pulse 2s infinite;
+        }
+        
+        .level-node.locked {
+            background: #2a2a2a;
+            border-color: #1a1a1a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .level-node.boss {
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
+        }
+        
+        .map-path {
+            position: absolute;
+            height: 4px;
+            background: #3d2914;
+            transform-origin: left center;
+        }
+        
+        .level-complete {
+            background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+            border: 5px solid #d4af37;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            color: #f4e4c1;
+            min-width: 450px;
+        }
+        
+        .level-complete h2 {
+            color: #d4af37;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .success-text {
+            font-size: 48px;
+            color: #4ade80;
+            margin: 20px 0;
+        }
+        
+        .loot-box {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .loot-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .loot-effect {
+            font-size: 12px;
+            color: #ffd700;
+            margin-top: 5px;
+        }
+        
+        .next-btn {
+            padding: 15px 40px;
+            background: linear-gradient(180deg, #d4af37 0%, #b8941f 100%);
+            border: 3px solid #3d2914;
+            border-radius: 10px;
+            color: #3d2914;
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .death-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+        }
+        
+        .death-overlay.active {
+            display: flex;
+        }
+        
+        .death-img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+        }
+        
+        .death-text {
+            font-size: 48px;
+            color: #8b0000;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- EKRAN 1: KARAKTER OLUŞTURMA -->
+    <div id="screen1">
+        <div class="creation-panel">
+            <div class="form-section">
+                <h2 style="color: #d4af37; text-align: center;">🗡️ Karakter Oluştur</h2>
+                
+                <input type="text" id="charName" placeholder="Karakter Adı" maxlength="20">
+                
+                <select id="charType">
+                    <option value="">Sınıf Seçin</option>
+                    <option value="assassin">Süikastçi</option>
+                    <option value="warrior">Savaşçı</option>
+                    <option value="mage">Büyücü</option>
+                </select>
+                
+                <div class="stat-bars">
+                    <div class="stat-row">
+                        <span class="stat-label">❤️ Can</span>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill" id="hpBar">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">⚔️ Güç</span>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill" id="pwrBar">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">🔮 Mana</span>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill" id="mpBar">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="create-btn" id="createBtn" disabled>Oluştur</button>
+            </div>
+            
+            <div class="preview-section">
+                <div class="character-preview">
+                    <img id="previewImg" class="game-img char-img" src="" alt="" style="display: none;">
+                    <div id="previewPlaceholder" style="color: #666; font-size: 48px;">?</div>
+                </div>
+                
+                <!-- BİLGİ KUTUSU -->
+                <div class="info-box" id="charInfoBox" style="display: none;">
+                    <div class="info-title" id="infoTitle">Karakter Bilgisi</div>
+                    <div class="info-stat">
+                        <span>Kritik Mana:</span>
+                        <span id="infoCritMana" style="color: #ffd700;">-</span>
+                    </div>
+                    <div class="info-stat">
+                        <span>Kritik Hasar:</span>
+                        <span id="infoCritMult" style="color: #ff6b6b;">-</span>
+                    </div>
+                    <div class="info-special" id="infoSpecial">Özel yetenek açıklaması buraya gelecek.</div>
+                </div>
+                
+                <div id="charInfoSimple" style="color: #f4e4c1; text-align: center; font-size: 14px;">
+                    Sınıf seçin...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EKRAN 2: OYUN -->
+    <div id="screen2">
+        <div class="game-header">
+            <div class="level-info" style="color: #d4af37; font-size: 20px;">
+                🗺️ Seviye <span id="currentLevel">1</span>
+            </div>
+            
+            <div class="player-status">
+                <div class="mini-avatar">
+                    <img id="playerAvatar" class="game-img mini-img" src="" alt="">
+                </div>
+                <div>
+                    <div id="playerNameDisplay" style="color: #d4af37; font-weight: bold;">İsimsiz</div>
+                    <div class="xp-bar">
+                        <div class="xp-fill" id="xpFill"></div>
+                    </div>
+                    <div style="color: #f4e4c1; font-size: 12px; text-align: center;">
+                        <span id="xpText">0/100 XP</span> | Lv.<span id="playerLevel">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-arena">
+            <div class="success-rate-box">
+                <div class="label">Başarı Oranı</div>
+                <div class="value" id="successRate">-%</div>
+            </div>
+            
+            <div class="enemy-box">
+                <div class="enemy-visual" id="enemyVisual">
+                    <img id="enemyImg" class="game-img enemy-img" src="" alt="Düşman">
+                </div>
+                <div class="enemy-name" id="enemyName">Yağmacı</div>
+                <div style="color: #f4e4c1; display: flex; gap: 20px; justify-content: center;">
+                    <span>❤️ <span id="enemyHp">50</span></span>
+                    <span>⚔️ <span id="enemyPwr">8</span></span>
+                </div>
+            </div>
+            
+            <div class="battle-log" id="battleLog">
+                <div>> Savaş başladı!</div>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="player-bars">
+                <div class="player-bar">
+                    <div class="player-bar-fill hp-fill" id="playerHpBar" style="width: 100%">
+                        <span id="playerHpText">100/100</span>
+                    </div>
+                </div>
+                <div class="player-bar">
+                    <div class="player-bar-fill mp-fill" id="playerMpBar" style="width: 100%">
+                        <span id="playerMpText">50/50</span>
+                    </div>
+                </div>
+                <div style="color: #d4af37; text-align: center; font-size: 14px;">
+                    ⚔️ Güç: <span id="playerPwr">30</span>
+                </div>
+            </div>
+            
+            <div class="action-area">
+                <button class="action-btn btn-attack" id="normalBtn">
+                    <img id="normalBtnIcon" class="btn-icon" src="" alt="">
+                    <span>Normal Saldırı</span>
+                </button>
+                <button class="action-btn btn-critical" id="criticalBtn" disabled>
+                    <img id="criticalBtnIcon" class="btn-icon" src="" alt="">
+                    <span>Kritik Saldırı</span>
+                </button>
+            </div>
+            
+            <div class="side-actions">
+                <button class="side-btn" id="inventoryBtn">
+                    <img id="inventoryIcon" class="btn-icon" src="" alt="">
+                    <span>Envanter</span>
+                </button>
+                <button class="side-btn" id="mapBtn">
+                    <img id="mapIcon" class="btn-icon" src="" alt="">
+                    <span>Harita</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENVANTER MODAL -->
+    <div class="modal" id="inventoryModal">
+        <div class="inventory-modal">
+            <div class="modal-header">🎒 Envanter</div>
+            <div class="inventory-grid" id="inventoryGrid"></div>
+            <button class="close-btn" onclick="closeInventory()">Kapat</button>
+        </div>
+    </div>
+
+    <!-- HARİTA MODAL -->
+    <div class="modal" id="mapModal">
+        <div class="map-modal">
+            <div class="map-title">🗺️ KARANLIK DİYAR</div>
+            <div class="map-container" id="mapContainer"></div>
+            <button class="close-btn" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);" onclick="closeMap()">Kapat</button>
+        </div>
+    </div>
+
+    <!-- LEVEL SONU MODAL -->
+    <div class="modal" id="levelCompleteModal">
+        <div class="level-complete">
+            <h2>🏆 SEVİYE TAMAMLANDI!</h2>
+            <div class="success-text" id="levelSuccessRate">%85</div>
+            <div class="loot-box">
+                <div style="color: #d4af37; margin-bottom: 10px;">Elde Edilen:</div>
+                <div class="loot-item">
+                    <img id="lootItemImg" class="game-img item-img" src="" alt="">
+                    <div>
+                        <div id="lootItemName" style="font-size: 20px;">Efsanevi Kılıç</div>
+                        <div class="loot-effect" id="lootItemEffect">+30 Saldırı</div>
+                    </div>
+                </div>
+            </div>
+            <button class="next-btn" id="nextLevelBtn">Sonraki Seviye ➔</button>
+        </div>
+    </div>
+
+    <!-- ÖLÜM EKRANI -->
+    <div class="death-overlay" id="deathOverlay">
+        <img id="deathImg" class="game-img death-img" src="" alt="">
+        <div class="death-text">☠️ ÖLDÜN ☠️</div>
+        <button class="next-btn" onclick="location.reload()">Yeniden Başla</button>
+    </div>
+
+    <script>
+        // ==================== GÖRSEL YOLLARI ====================
+        
+        const images = {
+            characters: {
+                assassin: 'images/characters/assassin_idle.png',
+                warrior: 'images/characters/warrior_idle.png',
+                mage: 'images/characters/mage_idle.png',
+                assassin_death: 'images/characters/assassin_death.png',
+                warrior_death: 'images/characters/warrior_death.png',
+                mage_death: 'images/characters/mage_death.png'
+            },
+            enemies: {
+                1: 'images/enemies/yagmaci_idle.png',
+                2: 'images/enemies/golgeli_idle.png',
+                3: 'images/enemies/zirhli_idle.png',
+                4: 'images/enemies/komutan_idle.png',
+                kanorku: 'images/enemies/kanorku_idle.png',
+                golgeiblisi: 'images/enemies/golgeiblisi_idle.png',
+                buzdevi: 'images/enemies/buzdevi_idle.png',
+                karabuyucu: 'images/enemies/karabuyucu_idle.png',
+                olumsovalye: 'images/enemies/olumsovalye_idle.png',
+                // Ölüm görselleri
+                yagmaci_death: 'images/enemies/yagmaci_death.png',
+                golgeli_death: 'images/enemies/golgeli_death.png',
+                zirhli_death: 'images/enemies/zirhli_death.png',
+                komutan_death: 'images/enemies/komutan_death.png',
+                kanorku_death: 'images/enemies/kanorku_death.png',
+                golgeiblisi_death: 'images/enemies/golgeiblisi_death.png',
+                buzdevi_death: 'images/enemies/buzdevi_death.png',
+                karabuyucu_death: 'images/enemies/karabuyucu_death.png',
+                olumsovalye_death: 'images/enemies/olumsovalye_death.png'
+            },
+            ui: {
+                assassin_normal: 'images/ui/assassin_normal.png',
+                assassin_critical: 'images/ui/assassin_critical.png',
+                warrior_normal: 'images/ui/warrior_normal.png',
+                warrior_critical: 'images/ui/warrior_critical.png',
+                mage_normal: 'images/ui/mage_normal.png',
+                mage_critical: 'images/ui/mage_critical.png',
+                map: 'images/ui/map_piece.png',
+                inventory: 'images/ui/potion.png'
+            },
+            items: {
+                // Genel iksirler
+                potion_red: 'images/items/potion_red.png',
+                potion_blue: 'images/items/potion_blue.png',
+                potion_strength: 'images/items/potion_strength.png',
+                shield: 'images/items/shield.png',
+                // Level 1-4 eşyaları
+                ring_critical: 'images/items/ring_critical.png',
+                battle_axe: 'images/items/battle_axe.png',
+                commander_seal: 'images/items/commander_seal.png',
+                // Boss eşyaları
+                ay_bicagi: 'images/items/ay_bicagi.png',
+                ork_zirhi: 'images/items/ork_zirhi.png',
+                kan_yuzugu: 'images/items/kan_yuzugu.png',
+                golge_hanceri: 'images/items/golge_hanceri.png',
+                karanlik_pelerin: 'images/items/karanlik_pelerin.png',
+                ruh_tasi: 'images/items/ruh_tasi.png',
+                buz_kiran_balta: 'images/items/buz_kiran_balta.png',
+                donmus_zirh: 'images/items/donmus_zirh.png',
+                buz_adimlari: 'images/items/buz_adimlari.png',
+                yasakli_grimoire: 'images/items/yasakli_grimoire.png',
+                lanet_muskasi: 'images/items/lanet_muskasi.png',
+                karanlik_asa: 'images/items/karanlik_asa.png',
+                kiyamet_kilici: 'images/items/kiyamet_kilici.png',
+                lanetli_tac: 'images/items/lanetli_tac.png',
+                ruh_emici: 'images/items/ruh_emici.png'
+            }
+        };
+        
+        // ==================== OYUN VERİLERİ ====================
+        
+        const classes = {
+            assassin: {
+                name: 'Süikastçi',
+                hp: 120, mp: 50, pwr: 30,
+                critMp: 50, critMult: 2.5, // Yükseltildi: 40 -> 50
+                desc: 'Gölgelerin ustası. Yüksek kritik hasar.',
+                special: 'Kritik Vuruş: Hasar x2.5 | Mana Maliyeti: 50'
+            },
+            warrior: {
+                name: 'Savaşçı',
+                hp: 150, mp: 30, pwr: 50,
+                critMp: 40, critMult: 2.0, // Yükseltildi: 30 -> 40
+                desc: 'Ön cephenin dayanıklı savunucusu.',
+                special: 'Güç Vuruşu: Hasar x2.0 | Mana Maliyeti: 40'
+            },
+            mage: {
+                name: 'Büyücü',
+                hp: 100, mp: 100, pwr: 20,
+                critMp: 30, critMult: 3.0, // Yükseltildi: 20 -> 30
+                desc: 'Büyü gücüyle düşmanlarını yok eder.',
+                special: 'Büyü Patlaması: Hasar x3.0 | Mana Maliyeti: 30'
+            }
+        };
+        
+        const enemiesData = {
+            1: { name: 'Yağmacı', hp: 50, pwr: 8, deathImg: 'yagmaci_death' },
+            2: { name: 'Gölgeli Savaşçı', hp: 90, pwr: 10, special: 'double', deathImg: 'golgeli_death' },
+            3: { name: 'Zırhlı Muhafız', hp: 160, pwr: 18, special: 'armor', deathImg: 'zirhli_death' },
+            4: { name: 'Kara Komutan', hp: 300, pwr: 30, special: 'aoe', deathImg: 'komutan_death' }
+        };
+        
+        const bossesData = [
+            {
+                name: 'Kan Orku',
+                hp: 800, pwr: 60,
+                special: 'rage',
+                deathImg: 'kanorku_death',
+                loot: [
+                    { name: 'Ay Bıçağı', img: 'ay_bicagi', effect: '+30 Saldırı', type: 'weapon', value: 30 },
+                    { name: 'Ork Zırhı', img: 'ork_zirhi', effect: '+40 Maksimum Can', type: 'armor', value: 40 },
+                    { name: 'Kan Yüzüğü', img: 'kan_yuzugu', effect: '%15 Yaşam Çalma', type: 'ring', value: 15 }
+                ]
+            },
+            {
+                name: 'Gölge İblisi',
+                hp: 700, pwr: 75,
+                special: 'dodge',
+                deathImg: 'golgeiblisi_death',
+                loot: [
+                    { name: 'Gölge Hançeri', img: 'golge_hanceri', effect: '+25 Saldırı, +%20 Kritik', type: 'weapon', value: 25 },
+                    { name: 'Karanlık Pelerin', img: 'karanlik_pelerin', effect: '%15 Hasar Azaltma', type: 'armor', value: 15 },
+                    { name: 'Ruh Taşı', img: 'ruh_tasi', effect: '+50 Maksimum Mana', type: 'accessory', value: 50 }
+                ]
+            },
+            {
+                name: 'Buz Devi',
+                hp: 1200, pwr: 50,
+                special: 'freeze',
+                deathImg: 'buzdevi_death',
+                loot: [
+                    { name: 'Buz Kıran Balta', img: 'buz_kiran_balta', effect: '+35 Saldırı, Yavaşlatma', type: 'weapon', value: 35 },
+                    { name: 'Donmuş Zırh', img: 'donmus_zirh', effect: '+60 Can, +%10 Savunma', type: 'armor', value: 60 },
+                    { name: 'Buz Adımları', img: 'buz_adimlari', effect: 'Donmaya Bağışıklık', type: 'boots', value: 1 }
+                ]
+            },
+            {
+                name: 'Kara Büyücü',
+                hp: 900, pwr: 65,
+                special: 'spell_stun',
+                deathImg: 'karabuyucu_death',
+                loot: [
+                    { name: 'Yasaklı Grimoire', img: 'yasakli_grimoire', effect: '+40 Büyü Gücü', type: 'book', value: 40 },
+                    { name: 'Lanet Muskası', img: 'lanet_muskasi', effect: '%20 Büyü Direnci', type: 'amulet', value: 20 },
+                    { name: 'Karanlık Asa', img: 'karanlik_asa', effect: '+30 Saldırı, +15 Mana Çalma', type: 'weapon', value: 30 }
+                ]
+            },
+            {
+                name: 'Ölüm Şövalyesi',
+                hp: 2000, pwr: 100,
+                special: 'summon_stun',
+                deathImg: 'olumsovalye_death',
+                loot: [
+                    { name: 'Kıyamet Kılıcı', img: 'kiyamet_kilici', effect: '+60 Saldırı', type: 'weapon', value: 60 },
+                    { name: 'Lanetli Taç', img: 'lanetli_tac', effect: '+100 Can, +%10 Kritik', type: 'helmet', value: 100 },
+                    { name: 'Ruh Emici', img: 'ruh_emici', effect: '%20 Yaşam Çalma, +20 Mana', type: 'ring', value: 20 }
+                ]
+            }
+        ];
+        
+        const itemsData = {
+            // Genel iksirler
+            smallHeal: { name: 'Küçük Can İksiri', img: 'potion_red', effect: 'heal', value: 25, desc: '+25 Can' },
+            mediumHeal: { name: 'Orta Can İksiri', img: 'potion_red', effect: 'heal', value: 50, desc: '+50 Can' },
+            largeHeal: { name: 'Büyük Can İksiri', img: 'potion_red', effect: 'heal', value: 100, desc: '+100 Can' },
+            smallMana: { name: 'Küçük Mana İksiri', img: 'potion_blue', effect: 'mana', value: 20, desc: '+20 Mana' },
+            mediumMana: { name: 'Orta Mana İksiri', img: 'potion_blue', effect: 'mana', value: 40, desc: '+40 Mana' },
+            largeMana: { name: 'Büyük Mana İksiri', img: 'potion_blue', effect: 'mana', value: 80, desc: '+80 Mana' },
+            strength: { name: 'Güç İksiri', img: 'potion_strength', effect: 'pwr', value: 15, desc: '+15 Güç (Geçici)' },
+            shield: { name: 'Kalkan', img: 'shield', effect: 'shield', value: 30, desc: '30 Hasar Emici' },
+            // Level 1-4 özel
+            ringCritical: { name: 'Kritik Yüzüğü', img: 'ring_critical', effect: 'crit', value: 10, desc: '%10 Kritik İndirimi' },
+            battleAxe: { name: 'Savaş Baltası', img: 'battle_axe', effect: 'pwr', value: 20, desc: '+20 Saldırı' },
+            commanderSeal: { name: 'Komutanın Mührü', img: 'commander_seal', effect: 'perma_pwr', value: 5, desc: 'Kalıcı +5 Güç' }
+        };
+        
+        // ==================== OYUN DURUMU ====================
+        
+        let game = {
+            player: {
+                name: '', class: '',
+                level: 1, xp: 0, maxXp: 100,
+                hp: 0, maxHp: 0,
+                mp: 0, maxMp: 0,
+                pwr: 0, basePwr: 0,
+                inventory: [],
+                equipped: {},
+                completedLevels: [],
+                effects: {
+                    lifeSteal: 0,
+                    damageReduce: 0,
+                    freezeImmune: false,
+                    stunResist: 0
+                }
+            },
+            currentLevel: 1,
+            enemy: null,
+            stunned: false,
+            stunnedUntil: 0,
+            enemyTurnCount: 0
+        };
+        
+        // ==================== EKRAN 1 ====================
+        
+        const charType = document.getElementById('charType');
+        const charName = document.getElementById('charName');
+        const createBtn = document.getElementById('createBtn');
+        
+        charType.addEventListener('change', () => {
+            const type = charType.value;
+            if (!type) return;
+            
+            const c = classes[type];
+            document.getElementById('hpBar').style.width = (c.hp/150*100) + '%';
+            document.getElementById('hpBar').textContent = c.hp;
+            document.getElementById('pwrBar').style.width = (c.pwr/50*100) + '%';
+            document.getElementById('pwrBar').textContent = c.pwr;
+            document.getElementById('mpBar').style.width = (c.mp/100*100) + '%';
+            document.getElementById('mpBar').textContent = c.mp;
+            
+            document.getElementById('previewImg').src = images.characters[type];
+            document.getElementById('previewImg').style.display = 'block';
+            document.getElementById('previewPlaceholder').style.display = 'none';
+            
+            // Bilgi kutusunu doldur
+            document.getElementById('charInfoSimple').style.display = 'none';
+            document.getElementById('charInfoBox').style.display = 'block';
+            document.getElementById('infoTitle').textContent = c.name;
+            document.getElementById('infoCritMana').textContent = c.critMp;
+            document.getElementById('infoCritMult').textContent = 'x' + c.critMult;
+            document.getElementById('infoSpecial').textContent = c.special;
+            
+            checkForm();
+        });
+        
+        charName.addEventListener('input', checkForm);
+        
+        function checkForm() {
+            createBtn.disabled = !(charType.value && charName.value.trim());
+        }
+        
+        createBtn.addEventListener('click', startGame);
+        
+        function startGame() {
+            const type = charType.value;
+            const c = classes[type];
+            
+            game.player.name = charName.value;
+            game.player.class = type;
+            game.player.maxHp = c.hp;
+            game.player.hp = c.hp;
+            game.player.maxMp = c.mp;
+            game.player.mp = c.mp;
+            game.player.basePwr = c.pwr;
+            game.player.pwr = c.pwr;
+            
+            game.player.inventory = [
+                { ...itemsData.smallHeal, id: Date.now() },
+                { ...itemsData.smallMana, id: Date.now() + 1 },
+                { ...itemsData.shield, id: Date.now() + 2 }
+            ];
+            
+            document.getElementById('screen1').style.display = 'none';
+            document.getElementById('screen2').style.display = 'flex';
+            
+            document.getElementById('playerNameDisplay').textContent = game.player.name;
+            document.getElementById('playerAvatar').src = images.characters[type];
+            
+            document.getElementById('normalBtnIcon').src = images.ui[type + '_normal'];
+            document.getElementById('criticalBtnIcon').src = images.ui[type + '_critical'];
+            document.getElementById('inventoryIcon').src = images.ui.inventory;
+            document.getElementById('mapIcon').src = images.ui.map;
+            
+            loadLevel(1);
+        }
+        
+        // ==================== ENVANTER ====================
+        
+        function openInventory() {
+            const modal = document.getElementById('inventoryModal');
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 24; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inventory-slot';
+                
+                if (game.player.inventory[i]) {
+                    const item = game.player.inventory[i];
+                    slot.classList.add('has-item');
+                    
+                    let typeIcon = '📦';
+                    if (item.type === 'weapon') typeIcon = '⚔️';
+                    if (item.type === 'armor') typeIcon = '🛡️';
+                    if (item.type === 'ring') typeIcon = '💍';
+                    if (item.effect === 'heal') typeIcon = '❤️';
+                    if (item.effect === 'mana') typeIcon = '🔮';
+                    
+                    slot.innerHTML = `
+                        <span class="item-type">${typeIcon}</span>
+                        <img class="game-img item-img" src="${images.items[item.img] || images.ui.inventory}" alt="">
+                        <div class="item-name">${item.name}</div>
+                    `;
+                    slot.onclick = () => useItem(i);
+                } else {
+                    slot.innerHTML = '<div style="color: #666; font-size: 24px;">+</div>';
+                }
+                
+                grid.appendChild(slot);
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeInventory() {
+            document.getElementById('inventoryModal').classList.remove('active');
+        }
+        
+        function useItem(index) {
+            const item = game.player.inventory[index];
+            const p = game.player;
+            
+            switch(item.effect) {
+                case 'heal':
+                    p.hp = Math.min(p.maxHp, p.hp + item.value);
+                    log(`${item.name} kullandın! +${item.value} can`, 'heal');
+                    break;
+                case 'mana':
+                    p.mp = Math.min(p.maxMp, p.mp + item.value);
+                    log(`${item.name} kullandın! +${item.value} mana`, 'heal');
+                    break;
+                case 'pwr':
+                    p.pwr += item.value;
+                    log(`${item.name} kullandın! +${item.value} güç (geçici)`, 'heal');
+                    break;
+                case 'shield':
+                    log(`${item.name} kullandın! Kalkan aktif`, 'heal');
+                    break;
+                case 'perma_pwr':
+                    p.basePwr += item.value;
+                    p.pwr += item.value;
+                    log(`${item.name} kullandın! Kalıcı +${item.value} güç!`, 'gold');
+                    break;
+                case 'weapon':
+                case 'armor':
+                case 'ring':
+                case 'helmet':
+                case 'boots':
+                case 'amulet':
+                case 'book':
+                    equipItem(item);
+                    return;
+            }
+            
+            game.player.inventory.splice(index, 1);
+            updatePlayerStats();
+            openInventory();
+        }
+        
+        function equipItem(item) {
+            const p = game.player;
+            const slot = item.type;
+            
+            // Eski itemi geri koy
+            if (p.equipped[slot]) {
+                p.inventory.push(p.equipped[slot]);
+            }
+            
+            // Yeni itemi giy
+            p.equipped[slot] = item;
+            
+            // Efektleri uygula
+            if (item.effect.includes('Saldırı') || item.effect.includes('Güç')) {
+                const val = parseInt(item.effect.match(/\d+/)[0]);
+                p.pwr += val;
+                p.basePwr += val;
+            }
+            if (item.effect.includes('Can')) {
+                const val = parseInt(item.effect.match(/\d+/)[0]);
+                p.maxHp += val;
+                p.hp += val;
+            }
+            if (item.effect.includes('Mana')) {
+                const val = parseInt(item.effect.match(/\d+/)[0]);
+                p.maxMp += val;
+                p.mp += val;
+            }
+            if (item.effect.includes('Yaşam Çalma')) {
+                p.effects.lifeSteal = parseInt(item.effect.match(/\d+/)[0]);
+            }
+            if (item.effect.includes('Hasar Azaltma')) {
+                p.effects.damageReduce = parseInt(item.effect.match(/\d+/)[0]);
+            }
+            if (item.effect.includes('Bağışıklık')) {
+                p.effects.freezeImmune = true;
+            }
+            
+            log(`${item.name} kuşandın!`, 'gold');
+            
+            // İnvanterden kaldır
+            const idx = p.inventory.indexOf(item);
+            if (idx > -1) p.inventory.splice(idx, 1);
+            
+            updatePlayerStats();
+            openInventory();
+        }
+        
+        // ==================== HARİTA ====================
+        
+        function openMap() {
+            const modal = document.getElementById('mapModal');
+            const container = document.getElementById('mapContainer');
+            container.innerHTML = '';
+            
+            const positions = [
+                {x: 50, y: 85}, {x: 20, y: 70}, {x: 80, y: 60}, {x: 50, y: 45},
+                {x: 50, y: 25}, {x: 20, y: 35}, {x: 80, y: 25}, {x: 30, y: 10},
+                {x: 70, y: 10}, {x: 50, y: -5}
+            ];
+            
+            for (let i = 0; i < positions.length - 1; i++) {
+                const path = document.createElement('div');
+                path.className = 'map-path';
+                const curr = positions[i];
+                const next = positions[i + 1];
+                const dx = next.x - curr.x;
+                const dy = next.y - curr.y;
+                const length = Math.sqrt(dx*dx + dy*dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                path.style.width = length + '%';
+                path.style.left = curr.x + '%';
+                path.style.top = curr.y + '%';
+                path.style.transform = `rotate(${angle}deg)`;
+                container.appendChild(path);
+            }
+            
+            positions.forEach((pos, index) => {
+                const level = index + 1;
+                const node = document.createElement('div');
+                node.className = 'level-node';
+                
+                if (level === 5 || level === 10) {
+                    node.classList.add('boss');
+                    node.innerHTML = '👹';
+                } else {
+                    node.textContent = level;
+                }
+                
+                node.style.left = pos.x + '%';
+                node.style.top = pos.y + '%';
+                
+                if (game.player.completedLevels.includes(level)) {
+                    node.classList.add('completed');
+                    node.innerHTML = '✓';
+                } else if (level === game.currentLevel) {
+                    node.classList.add('current');
+                } else if (level > game.currentLevel) {
+                    node.classList.add('locked');
+                }
+                
+                node.onclick = () => {
+                    if (level <= game.currentLevel) {
+                        closeMap();
+                        loadLevel(level);
+                    }
+                };
+                
+                container.appendChild(node);
+            });
+            
+            modal.classList.add('active');
+        }
+        
+        function closeMap() {
+            document.getElementById('mapModal').classList.remove('active');
+        }
+        
+        // ==================== SAVAŞ SİSTEMİ ====================
+        
+        function loadLevel(lvl) {
+            game.currentLevel = lvl;
+            game.enemyTurnCount = 0;
+            document.getElementById('currentLevel').textContent = lvl;
+            
+            let e;
+            if (lvl === 5 || lvl === 10) {
+                const boss = bossesData[Math.floor(Math.random() * bossesData.length)];
+                e = {
+                    name: boss.name,
+                    hp: boss.hp,
+                    pwr: boss.pwr,
+                    special: boss.special,
+                    deathImg: boss.deathImg,
+                    loot: boss.loot,
+                    img: images.enemies[boss.deathImg.replace('_death', '')]
+                };
+            } else if (lvl > 5 && lvl < 10) {
+                const base = enemiesData[lvl - 5];
+                e = {
+                    name: base.name + ' (Güçlü)',
+                    hp: Math.floor(base.hp * 1.5),
+                    pwr: Math.floor(base.pwr * 1.3),
+                    special: base.special,
+                    deathImg: base.deathImg,
+                    loot: null,
+                    img: images.enemies[lvl - 5]
+                };
+            } else {
+                const base = enemiesData[lvl];
+                e = {
+                    name: base.name,
+                    hp: base.hp,
+                    pwr: base.pwr,
+                    special: base.special,
+                    deathImg: base.deathImg,
+                    loot: null,
+                    img: images.enemies[lvl]
+                };
+            }
+            
+            game.enemy = {...e, currentHp: e.hp, maxHp: e.hp};
+            
+            document.getElementById('enemyImg').src = e.img;
+            document.getElementById('enemyName').textContent = e.name;
+            updateEnemyStats();
+            updatePlayerStats();
+            updateSuccessRate();
+            
+            log(`Seviye ${lvl} - ${e.name} ile karşılaştın!`);
+        }
+        
+        function updateEnemyStats() {
+            document.getElementById('enemyHp').textContent = game.enemy.currentHp;
+            document.getElementById('enemyPwr').textContent = game.enemy.pwr;
+        }
+        
+        // ==================== OYUNCU DURUMU GÜNCELLEME ====================
+
+        function updatePlayerStats() {
+            const p = game.player;
+            const c = classes[p.class];
+            
+            // Barların güncellenmesi
+            const hpPercent = (p.hp / p.maxHp) * 100;
+            const mpPercent = (p.mp / p.maxMp) * 100;
+            const xpPercent = (p.xp / p.maxXp) * 100;
+
+            document.getElementById('playerHpBar').style.width = hpPercent + '%';
+            document.getElementById('playerHpText').textContent = `${p.hp}/${p.maxHp}`;
+            
+            document.getElementById('playerMpBar').style.width = mpPercent + '%';
+            document.getElementById('playerMpText').textContent = `${p.mp}/${p.maxMp}`;
+            
+            document.getElementById('xpFill').style.width = xpPercent + '%';
+            document.getElementById('xpText').textContent = `${p.xp}/${p.maxXp} XP`;
+            document.getElementById('playerLevel').textContent = p.level;
+            document.getElementById('playerPwr').textContent = p.pwr;
+
+            // Kritik butonu kontrolü
+            const critBtn = document.getElementById('criticalBtn');
+            critBtn.disabled = p.mp < c.critMp;
+        }
+
+        function updateSuccessRate() {
+            const p = game.player;
+            const e = game.enemy;
+            // Basit bir kazanma olasılığı algoritması
+            let rate = Math.floor((p.hp + p.pwr * 2) / (e.currentHp + e.pwr * 2) * 100);
+            rate = Math.min(99, Math.max(1, rate));
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        function log(msg, type = '') {
+            const logBox = document.getElementById('battleLog');
+            const entry = document.createElement('div');
+            if (type) entry.style.color = type === 'heal' ? '#4ade80' : (type === 'gold' ? '#ffd700' : '#ff6b6b');
+            entry.textContent = `> ${msg}`;
+            logBox.prepend(entry);
+        }
+
+        // ==================== SALDIRI MANTIĞI ====================
+
+        document.getElementById('normalBtn').onclick = () => attack(false);
+        document.getElementById('criticalBtn').onclick = () => attack(true);
+
+        function attack(isCritical) {
+            const p = game.player;
+            const e = game.enemy;
+            const c = classes[p.class];
+
+            if (game.stunned && game.stunnedUntil > Date.now()) {
+                log("Sersemledin! Hareket edemiyorsun!", "error");
+                return;
+            }
+
+            // Oyuncu Saldırısı
+            let damage = Math.floor(p.pwr * (0.8 + Math.random() * 0.4));
+            if (isCritical) {
+                damage = Math.floor(damage * c.critMult);
+                p.mp -= c.critMp;
+                log(`${c.special.split(':')[0]} YAPILDI!`, 'gold');
+            }
+
+            e.currentHp -= damage;
+            log(`${e.name} düşmanına ${damage} hasar verdin!`);
+
+            // Yaşam Çalma (Lifesteal)
+            if (p.effects.lifeSteal > 0) {
+                const heal = Math.floor(damage * (p.effects.lifeSteal / 100));
+                p.hp = Math.min(p.maxHp, p.hp + heal);
+                log(`${heal} can çaldın!`, 'heal');
+            }
+
+            if (e.currentHp <= 0) {
+                e.currentHp = 0;
+                updateEnemyStats();
+                winBattle();
+            } else {
+                updateEnemyStats();
+                setTimeout(enemyTurn, 600);
+            }
+            updatePlayerStats();
+            updateSuccessRate();
+        }
+
+        function enemyTurn() {
+            const p = game.player;
+            const e = game.enemy;
+            
+            let damage = Math.floor(e.pwr * (0.7 + Math.random() * 0.6));
+            
+            // Zırh/Hasar Azaltma
+            if (p.effects.damageReduce > 0) {
+                damage = Math.floor(damage * (1 - p.effects.damageReduce / 100));
+            }
+
+            // Boss Özel Yetenekleri
+            if (e.special === 'spell_stun' && Math.random() < 0.3) {
+                game.stunned = true;
+                game.stunnedUntil = Date.now() + 2000;
+                log(`${e.name} seni büyüyle sersemletti!`, 'error');
+            }
+
+            p.hp -= damage;
+            log(`${e.name} sana ${damage} hasar vurdu!`, 'error');
+
+            if (p.hp <= 0) {
+                p.hp = 0;
+                updatePlayerStats();
+                gameOver();
+            }
+            
+            updatePlayerStats();
+            updateSuccessRate();
+        }
+
+        // ==================== OYUN SONU VE ÖDÜLLER ====================
+
+        function winBattle() {
+            log(`${game.enemy.name} mağlup edildi!`, 'heal');
+            
+            // Tecrübe Puanı
+            const xpGain = game.currentLevel * 40;
+            game.player.xp += xpGain;
+            if (game.player.xp >= game.player.maxXp) {
+                levelUp();
+            }
+
+            // Loot/Ödül Mekanizması
+            const modal = document.getElementById('levelCompleteModal');
+            document.getElementById('levelSuccessRate').textContent = document.getElementById('successRate').textContent;
+            
+            let loot;
+            if (game.enemy.loot) {
+                // Boss drobu
+                loot = game.enemy.loot[Math.floor(Math.random() * game.enemy.loot.length)];
+            } else {
+                // Normal düşman drobu (rastgele iksir)
+                const items = Object.values(itemsData).filter(i => !i.type);
+                loot = items[Math.floor(Math.random() * items.length)];
+            }
+
+            document.getElementById('lootItemName').textContent = loot.name;
+            document.getElementById('lootItemEffect').textContent = loot.effect || loot.desc;
+            document.getElementById('lootItemImg').src = images.items[loot.img];
+            
+            game.player.inventory.push(loot);
+            game.player.completedLevels.push(game.currentLevel);
+
+            document.getElementById('nextLevelBtn').onclick = () => {
+                modal.classList.remove('active');
+                if (game.currentLevel < 10) {
+                    loadLevel(game.currentLevel + 1);
+                } else {
+                    alert("TEBRİKLER! Karanlık Diyar'ı temizledin!");
+                    location.reload();
+                }
+            };
+
+            setTimeout(() => modal.classList.add('active'), 1000);
+        }
+
+        function levelUp() {
+            game.player.level++;
+            game.player.xp = 0;
+            game.player.maxXp += 50;
+            game.player.maxHp += 20;
+            game.player.hp = game.player.maxHp;
+            game.player.maxMp += 10;
+            game.player.mp = game.player.maxMp;
+            game.player.basePwr += 5;
+            game.player.pwr = game.player.basePwr;
+            log("SEVİYE ATLADIN! Güçlerin arttı.", "gold");
+        }
+
+        function gameOver() {
+            const overlay = document.getElementById('deathOverlay');
+            document.getElementById('deathImg').src = images.characters[game.player.class + '_death'];
+            overlay.classList.add('active');
+        }
+
+        // Buton Dinleyicileri
+        document.getElementById('inventoryBtn').onclick = openInventory;
+        document.getElementById('mapBtn').onclick = openMap;
+
+    </script>
+</body>
+</html>
